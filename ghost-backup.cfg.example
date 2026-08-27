@@ -1,6 +1,6 @@
 [Ghost]
-Host = https://theescritos.tz
-AccessToken = 679abf5566aff64436a6cfde:4c6dce63f23ab3ba3af57c04eb2a1eaa473f32a3ac6b59021d9544953648505a
+Host = https://localhost:2368
+AccessToken =
 Dir = ~/ghost
 
 [OCI]
