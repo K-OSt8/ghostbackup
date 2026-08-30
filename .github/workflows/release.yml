@@ -1,0 +1,36 @@
+name: Build and Release to GitHub
+
+on:
+  push:
+    tags:
+      - 'v*' # Triggers on tags like v0.1.0, v1.0.0
+
+jobs:
+  build-and-release:
+    name: Build package and create GitHub Release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Required to upload assets to GitHub Releases
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Install build tool
+        run: |
+          python -m pip install --upgrade pip
+          pip install build
+
+      - name: Build package distribution
+        run: python -m build
+
+      - name: Create Release and Upload Assets
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*
+          generate_release_notes: true
