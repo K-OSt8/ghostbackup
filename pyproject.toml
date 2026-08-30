@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ghost-backup"
+version = "0.1.0"
+description = "Geather Ghost relevant data and store it as single Package into OS"
+readme = "README.md"
+requires-python = ">=3.14"
+
+# Runtime dependencies
+dependencies = [
+    "pathlib>=1.0.1",
+    "pyjwt>=2.13.0",
+    "oci>=22.185.0",
+]
+
+    [project.urls]
+Homepage = "https://example.com"
+Repository = "https://github.com/K-OSt8/ghostbackup"
+
+# setuptools package configuration
+[tool.setuptools.packages.find]
+where = ["src"]
+
