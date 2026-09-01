@@ -7,7 +7,7 @@ name = "ghost-backup"
 version = "0.1.0"
 description = "Geather Ghost relevant data and store it as single Package into OS"
 readme = "README.md"
-requires-python = ">=3.14"
+requires-python = ">=3.12"
 
 # Runtime dependencies
 dependencies = [
