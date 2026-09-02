@@ -1,11 +1,12 @@
 # ghostclient.py
 import logging
-from urllib.error import HTTPError
-
 import requests
 import datetime
 import jwt
+
 from dateutil import parser
+from urllib.error import HTTPError
+from urllib.parse import urlparse
 from . import LOGGER_NAME
 
 class GhostClient:
@@ -26,14 +27,14 @@ class GhostClient:
         if len(resp) and len(resp.get("actions")):
             return  parser.isoparse(resp.get("actions")[0].get("created_at"))
         else:
-            return datetime.time.min
+            return datetime.datetime.now()
     
     def backUp(self):
         return self.__request(GhostClient.__slug_db)
         
     def __request(self, action, filter={}) -> any:
         try:
-            url = self.__host + GhostClient.__path_admin + action;
+            url = self.__host + GhostClient.__path_admin + action
             response = requests.get(url, headers=self.__buildHeaders(), params=filter)
             if response:
                 return response.json()
@@ -55,11 +56,14 @@ class GhostClient:
             raise e
             
     def __buildHeaders(self) -> dict:
-        return {
+        headers = {
             "Authorization": f"Ghost {self.__buildToken()}",
             "Content-Type": "application/json",
             "Accept-Version": "v5.0"
         }
+        if urlparse(self.__host).scheme != "https":
+            headers["X-Forwarded-Proto"] = "https"
+        return headers
         
     def __buildToken(self) -> str:
         now = datetime.datetime.now(datetime.timezone.utc)
