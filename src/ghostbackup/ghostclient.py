@@ -1,5 +1,7 @@
 # ghostclient.py
 import logging
+from urllib.error import HTTPError
+
 import requests
 import datetime
 import jwt
@@ -31,11 +33,20 @@ class GhostClient:
         
     def __request(self, action, filter={}) -> any:
         try:
-            response = requests.get(self.__host + GhostClient.__path_admin + action, headers=self.__buildHeaders(), params=filter)
+            url = self.__host + GhostClient.__path_admin + action;
+            response = requests.get(url, headers=self.__buildHeaders(), params=filter)
             if response:
                 return response.json()
             else:
-                return {}
+                self.__log.debug("Could not connect to %s: %s: Reason: %s",
+                                 response.raw.url,
+                                 response.status_code,
+                                 response.text)
+                raise HTTPError(url = response.raw.url,
+                                code = response.raw.status,
+                                msg = response.text,
+                                hdrs = response.raw.headers,
+                                fp = None)
         except requests.ConnectionError as e:
             self.__log.error("Could not connect to %s ", e.request.url)
             raise e
