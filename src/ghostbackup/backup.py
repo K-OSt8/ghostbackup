@@ -59,10 +59,11 @@ class BackUp:
             to_pack.append(export_path)
 
             #create file-system package
+            """
             content_path = self.__fileset.pack(tmp_path.joinpath(f"ghost-content-{now}.zip"))
             self.__log.debug("Saved files to %s", content_path)
             to_pack.append(content_path)
-
+            """
             #crete sql-dump
             dump_path = self._sql.export_tables(tmp_path.joinpath(f"ghost-sql-{now}.zip"))
             self.__log.debug("Exported db tables to %s", dump_path)

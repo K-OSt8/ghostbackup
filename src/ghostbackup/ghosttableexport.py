@@ -50,7 +50,7 @@ class GhostTables:
     def __init__(self, host: str, db_name: str, db_user: str, secret_ocid: str, port = 3306) -> None:
         self._db_user = db_user
         self._db_host = host
-        self._db_port = port
+        self._db_port = int(port)
         self._db_name = db_name
         self._password = self._read_secret_from_oci_vault(secret_ocid)
         self.__logger = logging.getLogger(LOGGER_NAME)
