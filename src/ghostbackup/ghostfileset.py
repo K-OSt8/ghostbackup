@@ -32,5 +32,5 @@ class GhostFileSet:
                             name = fPath.relative_to(self.__path_content)
                             zipf.write(fPath, arcname=name)
                 else:
-                    logging.getLogger(LOGGER_NAME).warning("Invalid or inexistant dir '%s'", dir)
+                    logging.getLogger(LOGGER_NAME).warning("Invalid or non-existent dir '%s'", dir)
         return file_path

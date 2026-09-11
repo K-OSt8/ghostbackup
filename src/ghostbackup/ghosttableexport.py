@@ -1,9 +1,12 @@
 from __future__ import annotations
 from pathlib import Path
+from . import LOGGER_NAME
 
 import base64
 import oci
 import pymysql
+import logging
+
 
 _BATCH_SIZE = 1000  # Zeilen pro fetchmany()-Aufruf
 
@@ -19,10 +22,30 @@ class GhostTables:
 
     # Tabellenname -> optionaler WHERE-Filter (None = komplette Tabelle)
     TABLES: dict[str, str | None] = {
+        # Redaktioneller Inhalt
+        "posts": None,
+        "posts_meta": None,
+        "posts_tags": None,
+        "posts_authors": None,
+        "tags": None,
+        # Members
+        "members": None,
+        "members_stripe_customers": None,
+        "members_stripe_customers_subscriptions": None,
+        "members_products": None,
+        "members_labels": None,
+        "labels": None,
+        "members_newsletters": None,
+        # Kommentare / anderer User-Content
+        "comments": None,
+        "comment_likes": None,
+        "comment_reports": None,
+        # Settings
         "settings": None,
-        "orders": "status = 'open'",
-        "logs": "created_at >= '2026-01-01'",
     }
+
+    DIR_NAME: str = "dp_dump"
+
 
     def __init__(self, host: str, db_name: str, db_user: str, secret_ocid: str, port = 3306) -> None:
         self._db_user = db_user
@@ -30,6 +53,7 @@ class GhostTables:
         self._db_port = port
         self._db_name = db_name
         self._password = self._read_secret_from_oci_vault(secret_ocid)
+        self.__logger = logging.getLogger(LOGGER_NAME)
 
 
     @staticmethod
@@ -45,7 +69,7 @@ class GhostTables:
         content = response.data.secret_bundle_content.content
         return base64.b64decode(content).decode("utf-8")
 
-    def export_tables(self, output_dir: str | Path) -> list[Path]:
+    def export_tables(self, output_dir: str | Path) -> Path:
         """
         Exportiert nur die Daten der in TABLES definierten Tabellen in das
         übergebene Verzeichnis. Pro Tabelle wird eine eigene SQL-Datei
@@ -54,7 +78,7 @@ class GhostTables:
         Gibt die Liste der erzeugten Dateipfade zurück.
         """
 
-        output_path = Path(output_dir)
+        output_path = Path(output_dir).joinpath(self.DIR_NAME)
         output_path.mkdir(parents=True, exist_ok=True)
 
         connection = pymysql.connect(
@@ -65,13 +89,13 @@ class GhostTables:
             database=self._db_name,
             charset="utf8mb4",
         )
-
+        self.__logger.debug("Connected to '%s'", connection.get_host_info())
         written_files: list[Path] = []
         try:
             for table_name, where in self.TABLES.items():
                 table_file = output_path / f"{table_name}.sql"
                 written_files.append(table_file)
-
+                self.__logger.debug("Read Table '$s'", table_name)
                 with connection.cursor() as cursor, table_file.open("w", encoding="utf-8") as f:
                     query = f"SELECT * FROM `{table_name}`"
                     if where:
@@ -91,5 +115,5 @@ class GhostTables:
         finally:
             connection.close()
 
-        return written_files
+        return output_path
 
