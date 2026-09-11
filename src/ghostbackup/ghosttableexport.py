@@ -95,7 +95,7 @@ class GhostTables:
             for table_name, where in self.TABLES.items():
                 table_file = output_path / f"{table_name}.sql"
                 written_files.append(table_file)
-                self.__logger.debug("Read Table '$s'", table_name)
+                self.__logger.debug("Read Table '%s'", table_name)
                 with connection.cursor() as cursor, table_file.open("w", encoding="utf-8") as f:
                     query = f"SELECT * FROM `{table_name}`"
                     if where:
