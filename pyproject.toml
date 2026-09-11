@@ -15,7 +15,7 @@ dependencies = [
     "pyjwt>=2.13.0",
     "oci>=2.185.0",
     "requests>=2.34.0",
-    "pymsql>=1.20",
+    "pymysql>=1.20",
 ]
 
     [project.urls]
