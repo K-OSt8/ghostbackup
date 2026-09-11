@@ -17,6 +17,9 @@ class BackUpConfig:
    def getOCI(self):
       return self.__cfg['OCI']
 
+   def getDB(self):
+      return self.__cfg['DB']
+
 
 def loadConfig(cfg_path:Path) -> BackUpConfig :
    path = cfg_path or __path_default

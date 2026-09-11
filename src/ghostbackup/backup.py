@@ -9,6 +9,7 @@ from . import LOGGER_NAME
 from .ghostfileset import GhostFileSet
 from .config import BackUpConfig
 from .ghostclient import GhostClient
+from .ghosttableexport import GhostTables
 from .ocios import OSFileArchive
 
 
@@ -20,6 +21,11 @@ class BackUp:
                             name_space=config.getOCI()['NameSpace'],
                             name_prefix="ghost-backup",
                             name_postfix=".zip")
+        self._sql = GhostTables(host=config.getDB()['Host'],
+                                    port=config.getDB()['Port'],
+                                    db_name=config.getDB()['DBName'],
+                                    db_user=config.getDB()['DBUserName'],
+                                    secret_ocid=config.getDB()['SecretOcid'])
         self.__log = logging.getLogger(LOGGER_NAME)
     
     def backup(self, force=False):
@@ -34,7 +40,7 @@ class BackUp:
     def __backup_required(self) -> bool:
         last_edit = self.__ghost.lastModified()
         archived = self.__archive.contains(last_edit)
-        self.__log.debug("Ghost last modified %s: Archive contains back-up %s", last_edit, archived)
+        self.__log.debug("Ghost last modified %s: Archive contains back-up: '%s'", last_edit, archived)
         return not archived
 
     def __backup(self) -> str:
@@ -49,12 +55,19 @@ class BackUp:
             export_path = tmp_path.joinpath(f'ghost-export-{now}.json')
             with open(export_path, 'w') as export_file:
                 json.dump(self.__ghost.backUp(), export_file, ensure_ascii=False)
+                self.__log.debug("Saved export to: %s", export_file.name)
             to_pack.append(export_path)
-        
+
             #create file-system package
-            content_path =self.__fileset.pack(tmp_path.joinpath(f"ghost-content-{now}.zip"))
+            content_path = self.__fileset.pack(tmp_path.joinpath(f"ghost-content-{now}.zip"))
+            self.__log.debug("Saved files to %s", content_path)
             to_pack.append(content_path)
-        
+
+            #crete sql-dump
+            dump_path = self._sql.export_tables(tmp_path.joinpath(f"ghost-sql-{now}.zip"))
+            self.__log.debug("Exported db tables to %s", dump_path)
+            to_pack.append(dump_path)
+
             #zip
             with ZipFile(tmp_path.joinpath(f"backup-{now}.zip"), 'w', ZIP_DEFLATED) as backup_package:
                 for path in to_pack:
@@ -62,5 +75,6 @@ class BackUp:
         
             #archive
             archive_name = self.__archive.store(Path(backup_package.filename))
+            self.__log.debug("Created archive %s", archive_name)
         
         return archive_name

@@ -3,3 +3,4 @@ requests
 pyjwt
 python-dateutil
 oci
+pymysql
