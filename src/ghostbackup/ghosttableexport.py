@@ -95,30 +95,6 @@ class GhostTables:
         with ZipFile(output_path, 'w', ZIP_LZMA) as zipf:
             with zipf.open(name='test', mode='w') as f:
                 f.write("hallo".encode("utf-8"))
-                """
-            try:
-                for table_name, where in self.TABLES.items():
-                    name = f"{table_name}.sql"
-                    self.__logger.debug("Read Table '%s'", table_name)
-                    with connection.cursor() as cursor, zipf.open(name=name, mode="w") as f:
-                        query = f"SELECT * FROM `{table_name}`"
-                        if where:
-                            query += f" WHERE {where}"
-                        cursor.execute(query)
 
-                        columns = [d[0] for d in cursor.description]
-                        column_list = ", ".join(f"`{c}`" for c in columns)
-
-                        while rows := cursor.fetchmany(_BATCH_SIZE):
-                            for row in rows:
-                                values = ", ".join(
-                                    "NULL" if v is None else connection.escape(v)
-                                    for v in row
-                                )
-                                f.write(f"INSERT INTO `{table_name}` ({column_list}) VALUES ({values});\n".encode("utf-8"))
-                        self.__logger.debug("Wrote '%s' to '%s'", table_name, name)
-            finally:
-                connection.close()
-	"""
         return output_path
 
