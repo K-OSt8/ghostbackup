@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from pathlib import Path
 from zipfile import ZipFile, ZIP_LZMA
 from . import LOGGER_NAME
@@ -82,8 +80,8 @@ class GhostTables:
         """
 
         output_path = Path(file_name)
-        if not output_path.name.endswith(ZIP_EXTENSION): output_path.joinpath(ZIP_EXTENSION)
-        output_path.mkdir(parents=True, exist_ok=True)
+        if not output_path.name.endswith(ZIP_EXTENSION): output_path = Path(output_path.name + ZIP_EXTENSION)
+        #output_path.mkdir(parents=True, exist_ok=True)
 
         connection = pymysql.connect(
             host=self._db_host,
@@ -95,11 +93,14 @@ class GhostTables:
         )
         self.__logger.debug("Connected to '%s'", connection.get_host_info())
         with ZipFile(output_path, 'w', ZIP_LZMA) as zipf:
+            with zipf.open(name='test', mode='w') as f:
+                f.write("hallo".encode("utf-8"))
+	"""
             try:
                 for table_name, where in self.TABLES.items():
-                    name = output_path.joinpath(f"{table_name}.sql")
+                    name = f"{table_name}.sql"
                     self.__logger.debug("Read Table '%s'", table_name)
-                    with connection.cursor() as cursor, zipf.open(name=name.name, mode="w") as f:
+                    with connection.cursor() as cursor, zipf.open(name=name, mode="w") as f:
                         query = f"SELECT * FROM `{table_name}`"
                         if where:
                             query += f" WHERE {where}"
@@ -114,10 +115,10 @@ class GhostTables:
                                     "NULL" if v is None else connection.escape(v)
                                     for v in row
                                 )
-                                f.write(f"INSERT INTO `{table_name}` ({column_list}) VALUES ({values});\n")
-                        self.__logger.debug("Wrote '%s' to '%s'", name, table_name)
+                                f.write(f"INSERT INTO `{table_name}` ({column_list}) VALUES ({values});\n".encode("utf-8"))
+                        self.__logger.debug("Wrote '%s' to '%s'", table_name, name)
             finally:
                 connection.close()
-
+	"""
         return output_path
 
