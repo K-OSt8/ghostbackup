@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from zipfile import ZipFile, ZIP_LZMA
+from zipfile import ZipFile, ZIP_DEFLATED
 from . import LOGGER_NAME
 
 import base64
@@ -93,7 +93,7 @@ class GhostTables:
             charset="utf8mb4",
         )
         self.__logger.debug("Connected to '%s'", connection.get_host_info())
-        with ZipFile(output_path, 'w', ZIP_LZMA) as zipf:
+        with ZipFile(output_path, 'w', ZIP_DEFLATED) as zipf:
             try:
                 for table_name, where in self.TABLES.items():
                     name = output_path.joinpath(f"{table_name}.sql")
@@ -114,7 +114,7 @@ class GhostTables:
                                     for v in row
                                 )
                                 f.write(f"INSERT INTO `{table_name}` ({column_list}) VALUES ({values});\n".encode("utf-8"))
-                        self.__logger.debug("Wrote '%s' to '%s'", name, table_name)
+                        self.__logger.debug("Wrote table '%s' to '%s'", table_name, name.name)
             finally:
                 connection.close()
 
