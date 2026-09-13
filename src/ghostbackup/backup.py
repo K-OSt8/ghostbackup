@@ -46,7 +46,7 @@ class BackUp:
     def __backup(self) -> str:
 
         #create temp-dir
-        with TemporaryDirectory(prefix="ghost-backup") as temp_dir:
+        with TemporaryDirectory(prefix="ghost-backup", delete=False) as temp_dir:
             to_pack = []
             tmp_path = Path(temp_dir)
             now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H-%M-%SZ")
@@ -75,7 +75,7 @@ class BackUp:
                     backup_package.write(path, arcname=path.name)
         
             #archive
-            archive_name = self.__archive.store(Path(backup_package.filename))
+            archive_name = "-ommited-"#self.__archive.store(Path(backup_package.filename))
             self.__log.debug("Created archive %s", archive_name)
         
         return archive_name
