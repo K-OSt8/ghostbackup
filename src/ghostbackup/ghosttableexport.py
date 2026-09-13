@@ -82,7 +82,7 @@ class GhostTables:
         """
 
         output_path = Path(file_name)
-        #if not output_path.name.endswith(ZIP_EXTENSION): output_path = Path(output_path + ZIP_EXTENSION=
+        if not output_path.suffix or output_path.suffix != ".zip": output_path = output_path.with_suffix(".zip")
 
         connection = pymysql.connect(
             host=self._db_host,
@@ -113,7 +113,7 @@ class GhostTables:
                                     "NULL" if v is None else connection.escape(v)
                                     for v in row
                                 )
-                                f.write(f"INSERT INTO `{table_name}` ({column_list}) VALUES ({values});\n")
+                                f.write(f"INSERT INTO `{table_name}` ({column_list}) VALUES ({values});\n".encode("utf-8"))
                         self.__logger.debug("Wrote '%s' to '%s'", name, table_name)
             finally:
                 connection.close()
