@@ -95,7 +95,7 @@ class GhostTables:
         with ZipFile(output_path, 'w', ZIP_LZMA) as zipf:
             with zipf.open(name='test', mode='w') as f:
                 f.write("hallo".encode("utf-8"))
-	"""
+                """
             try:
                 for table_name, where in self.TABLES.items():
                     name = f"{table_name}.sql"
