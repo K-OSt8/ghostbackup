@@ -1,5 +1,7 @@
 from __future__ import annotations
+
 from pathlib import Path
+from zipfile import ZipFile, ZIP_LZMA
 from . import LOGGER_NAME
 
 import base64
@@ -7,6 +9,7 @@ import oci
 import pymysql
 import logging
 
+ZIP_EXTENSION = '.zip'
 
 _BATCH_SIZE = 1000  # Zeilen pro fetchmany()-Aufruf
 
@@ -44,7 +47,7 @@ class GhostTables:
         "settings": None,
     }
 
-    DIR_NAME: str = "dp_dump"
+    DIR_NAME: str = "db_dump"
 
 
     def __init__(self, host: str, db_name: str, db_user: str, secret_ocid: str, port = 3306) -> None:
@@ -69,7 +72,7 @@ class GhostTables:
         content = response.data.secret_bundle_content.content
         return base64.b64decode(content).decode("utf-8")
 
-    def export_tables(self, output_dir: str | Path) -> Path:
+    def export_tables(self, file_name: str | Path) -> Path:
         """
         Exportiert nur die Daten der in TABLES definierten Tabellen in das
         übergebene Verzeichnis. Pro Tabelle wird eine eigene SQL-Datei
@@ -78,7 +81,8 @@ class GhostTables:
         Gibt die Liste der erzeugten Dateipfade zurück.
         """
 
-        output_path = Path(output_dir).joinpath(self.DIR_NAME)
+        output_path = Path(file_name)
+        if not output_path.name.endswith(ZIP_EXTENSION): output_path.joinpath(ZIP_EXTENSION)
         output_path.mkdir(parents=True, exist_ok=True)
 
         connection = pymysql.connect(
@@ -90,30 +94,30 @@ class GhostTables:
             charset="utf8mb4",
         )
         self.__logger.debug("Connected to '%s'", connection.get_host_info())
-        written_files: list[Path] = []
-        try:
-            for table_name, where in self.TABLES.items():
-                table_file = output_path / f"{table_name}.sql"
-                written_files.append(table_file)
-                self.__logger.debug("Read Table '%s'", table_name)
-                with connection.cursor() as cursor, table_file.open("w", encoding="utf-8") as f:
-                    query = f"SELECT * FROM `{table_name}`"
-                    if where:
-                        query += f" WHERE {where}"
-                    cursor.execute(query)
+        with ZipFile(output_path, 'w', ZIP_LZMA) as zipf:
+            try:
+                for table_name, where in self.TABLES.items():
+                    name = output_path.joinpath(f"{table_name}.sql")
+                    self.__logger.debug("Read Table '%s'", table_name)
+                    with connection.cursor() as cursor, zipf.open(name=name.name, mode="w") as f:
+                        query = f"SELECT * FROM `{table_name}`"
+                        if where:
+                            query += f" WHERE {where}"
+                        cursor.execute(query)
 
-                    columns = [d[0] for d in cursor.description]
-                    column_list = ", ".join(f"`{c}`" for c in columns)
+                        columns = [d[0] for d in cursor.description]
+                        column_list = ", ".join(f"`{c}`" for c in columns)
 
-                    while rows := cursor.fetchmany(_BATCH_SIZE):
-                        for row in rows:
-                            values = ", ".join(
-                                "NULL" if v is None else connection.escape(v)
-                                for v in row
-                            )
-                            f.write(f"INSERT INTO `{table_name}` ({column_list}) VALUES ({values});\n")
-        finally:
-            connection.close()
+                        while rows := cursor.fetchmany(_BATCH_SIZE):
+                            for row in rows:
+                                values = ", ".join(
+                                    "NULL" if v is None else connection.escape(v)
+                                    for v in row
+                                )
+                                f.write(f"INSERT INTO `{table_name}` ({column_list}) VALUES ({values});\n")
+                        self.__logger.debug("Wrote '%s' to '%s'", name, table_name)
+            finally:
+                connection.close()
 
         return output_path
 

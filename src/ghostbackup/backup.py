@@ -65,7 +65,7 @@ class BackUp:
             to_pack.append(content_path)
             """
             #crete sql-dump
-            dump_path = self._sql.export_tables(tmp_path.joinpath(f"ghost-sql-{now}.zip"))
+            dump_path = self._sql.export_tables(tmp_path.joinpath(f"ghost-sql-{now}"))
             self.__log.debug("Exported db tables to %s", dump_path)
             to_pack.append(dump_path)
 
