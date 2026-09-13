@@ -3,7 +3,7 @@ requires = ["setuptools>=68.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "ghost-backup"
+name = "ghostbackup"
 version = "0.1.1"
 description = "Geather Ghost relevant data and store it as single Package into OS"
 readme = "README.md"
