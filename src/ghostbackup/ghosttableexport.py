@@ -87,7 +87,6 @@ class GhostTables:
         with ZipFile(output_path, 'w', ZIP_DEFLATED) as zipf:
             try:
                 for table_name in self.TABLES:
-                    self.__logger.debug("Read Table '%s'", table_name)
                     file_name = table_name+".sql"
                     with connection.cursor() as cursor, zipf.open(name=file_name, mode="w") as sql_file:
                         query = f"SELECT * FROM `{table_name}`"

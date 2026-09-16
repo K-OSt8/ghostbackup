@@ -15,6 +15,7 @@ class GhostFileSet:
     def __init__(self, ghost_install_dir: Path):
         if not ghost_install_dir: ghost_install_dir = self._PACK_NAME_DEFAULT
         self.__path_content = ghost_install_dir.joinpath(self._CONTENT_PATH_DEFAULT)
+        self.__logger = logging.getLogger(LOGGER_NAME)
 
     def __get_compress_type(self, suffix:str):
         return zipfile.ZIP_STORED if suffix.lower() in self._COMPRESSED_EXTENSIONS else zipfile.ZIP_DEFLATED
@@ -23,15 +24,16 @@ class GhostFileSet:
         file_path = self.__path_content.joinpath(dest)
         with zipfile.ZipFile(file_path, 'w', zipfile.ZIP_LZMA) as zipf:
             for path in self._DIRECTORIES_DEFAULT:
-                dir = self.__path_content.joinpath(path)
-                if dir.exists() and dir.is_dir():
-                    for root, dirName, fNames in dir.walk(follow_symlinks=True):
+                bkp_dir = self.__path_content.joinpath(path)
+                if bkp_dir.exists() and bkp_dir.is_dir():
+                    for root, dirName, fNames in bkp_dir.walk(follow_symlinks=True):
                         for fName in fNames:
                             fPath = Path(root).joinpath(fName)
                             name = fPath.relative_to(self.__path_content)
                             zipf.write(fPath, arcname=name, compress_type=self.__get_compress_type(fPath.suffix))
+                    self.__logger.debug(f"Compressed Directory '{bkp_dir}'")
                 else:
-                    logging.getLogger(LOGGER_NAME).warning("Invalid or non-existent dir '%s'", dir)
+                    self.__logger.warning("Invalid or non-existent dir '%s'", bkp_dir)
         return file_path
 
 
