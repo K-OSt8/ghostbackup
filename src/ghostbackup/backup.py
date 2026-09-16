@@ -46,7 +46,7 @@ class BackUp:
     def __backup(self) -> str:
 
         #create temp-dir
-        with TemporaryDirectory(prefix="ghost-backup", delete=False) as temp_dir:
+        with TemporaryDirectory(prefix="ghost-backup", delete=True) as temp_dir:
             to_pack = []
             tmp_path = Path(temp_dir)
             now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H-%M-%SZ")
