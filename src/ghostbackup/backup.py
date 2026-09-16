@@ -16,7 +16,7 @@ from .ocios import OSFileArchive
 class BackUp:
     def __init__(self, config:BackUpConfig):
         self.__ghost = GhostClient(accesstoken=config.getGhost()['AccessToken'], host = config.getGhost()['Host'])
-        self.__fileset = GhostFileSet(ghost_installdir=Path(config.getGhost()['Dir']))
+        self.__fileset = GhostFileSet(ghost_install_dir=Path(config.getGhost()['Dir']))
         self.__archive = OSFileArchive(bucket_name=config.getOCI()['BucketName'], 
                             name_space=config.getOCI()['NameSpace'],
                             name_prefix="ghost-backup",
