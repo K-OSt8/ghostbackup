@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ghostbackup"
-version = "0.1.2.2"
+version = "0.2.0"
 description = "Geather Ghost relevant data and store it as single Package into OS"
 readme = "README.md"
 requires-python = ">=3.12"
