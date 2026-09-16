@@ -48,5 +48,5 @@ class OSFileArchive:
             file_path=path,
             storage_tier="InfrequentAccess"
         )
-        self.__logger.debug(f"Stored '{name}' with {resp}", resp.status)
+        self.__logger.debug("Stored '%s' with %s", name, resp.status)
         return name
