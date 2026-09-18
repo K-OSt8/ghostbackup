@@ -8,7 +8,6 @@ from .selective_zip import SelectiveZipFile
 
 class GhostFileSet:
 
-    _COMPRESSED_EXTENSIONS: set[str] = {".jpg", ".jpeg", ".png", ".webp", ".gif", ".mp4", ".zip", ".gz"}
     _PACK_NAME_DEFAULT: Path = Path("ghost_backup.zip")
     _CONTENT_PATH_DEFAULT: Path = Path("content")
     _DIRECTORIES_DEFAULT: set[str] = {"data", "files", "images", "media", "settings", "themes"}
@@ -17,9 +16,6 @@ class GhostFileSet:
         if not ghost_install_dir: ghost_install_dir = self._PACK_NAME_DEFAULT
         self.__path_content = ghost_install_dir.joinpath(self._CONTENT_PATH_DEFAULT)
         self.__logger = logging.getLogger(LOGGER_NAME)
-
-    def __get_compress_type(self, suffix:str):
-        return zipfile.ZIP_STORED if suffix.lower() in self._COMPRESSED_EXTENSIONS else zipfile.ZIP_DEFLATED
 
     def pack(self, dest=Path("backup.zip")) -> Path:
         file_path = self.__path_content.joinpath(dest)

@@ -3,7 +3,6 @@ import json
 from datetime import datetime, timezone
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from zipfile import ZipFile
 from zipfile import ZIP_DEFLATED
 from . import LOGGER_NAME
 from .ghostfileset import GhostFileSet
@@ -11,6 +10,7 @@ from .config import BackUpConfig
 from .ghostclient import GhostClient
 from .ghosttableexport import GhostTables
 from .ocios import OSFileArchive
+from .selective_zip import SelectiveZipFile
 
 
 class BackUp:
@@ -69,7 +69,7 @@ class BackUp:
             to_pack.append(dump_path)
 
             #zip
-            with ZipFile(tmp_path.joinpath(f"backup-{now}.zip"), 'w', ZIP_DEFLATED) as backup_package:
+            with SelectiveZipFile(tmp_path.joinpath(f"backup-{now}.zip"), 'w', ZIP_DEFLATED) as backup_package:
                 for path in to_pack:
                     backup_package.write(path, arcname=path.name)
         
