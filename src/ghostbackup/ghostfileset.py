@@ -3,6 +3,7 @@ import logging
 import zipfile
 from pathlib import Path
 from . import LOGGER_NAME
+from .selective_zip import SelectiveZipFile
 
 
 class GhostFileSet:
@@ -22,7 +23,7 @@ class GhostFileSet:
 
     def pack(self, dest=Path("backup.zip")) -> Path:
         file_path = self.__path_content.joinpath(dest)
-        with zipfile.ZipFile(file_path, 'w', zipfile.ZIP_LZMA) as zipf:
+        with SelectiveZipFile(file_path, 'w', zipfile.ZIP_LZMA) as zipf:
             for path in self._DIRECTORIES_DEFAULT:
                 bkp_dir = self.__path_content.joinpath(path)
                 if bkp_dir.exists() and bkp_dir.is_dir():
@@ -30,7 +31,7 @@ class GhostFileSet:
                         for fName in fNames:
                             fPath = Path(root).joinpath(fName)
                             name = fPath.relative_to(self.__path_content)
-                            zipf.write(fPath, arcname=name, compress_type=self.__get_compress_type(fPath.suffix))
+                            zipf.write(fPath, arcname=name)
                     self.__logger.debug(f"Compressed Directory '{bkp_dir}'")
                 else:
                     self.__logger.warning("Invalid or non-existent dir '%s'", bkp_dir)
