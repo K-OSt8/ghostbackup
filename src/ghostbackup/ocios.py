@@ -1,7 +1,10 @@
 import datetime
+import logging
 from pathlib import Path
-from oci.object_storage import ObjectStorageClient 
+from oci.object_storage import ObjectStorageClient, UploadManager
 from oci.config import from_file
+
+from . import LOGGER_NAME
 
 
 class OSFileArchive:
@@ -11,6 +14,7 @@ class OSFileArchive:
         self.__b_name = bucket_name
         self.__name_space = name_space
         self.__name_format = name_prefix + "-{date}" + name_postfix
+        self.__logger = logging.getLogger(LOGGER_NAME)
 
     def contains(self, date: datetime.datetime):
 
@@ -30,12 +34,19 @@ class OSFileArchive:
         else:
             return False
 
-    def store(self, path: Path) -> str:
+    def store(self, path: str) -> str:
         name = self.__name_format.format(date=datetime.datetime.now(datetime.timezone.utc))
-        with path.open('rb') as input_file:
-            self.__client.put_object(namespace_name=self.__name_space,
-                                     bucket_name=self.__b_name,
-                                     object_name=name,
-                                     storage_tier= "InfrequentAccess",
-                                     put_object_body=input_file.read())
+        upload_manager =  UploadManager(
+            object_storage_client=self.__client,
+            allow_multipart_uploads=True,
+            allow_parallel_uploads=True,
+        )
+        resp = upload_manager.upload_file(
+            namespace_name=self.__name_space,
+            bucket_name=self.__b_name,
+            object_name=name,
+            file_path=path,
+            storage_tier="InfrequentAccess"
+        )
+        self.__logger.debug("Stored '%s' with %s", name, resp.status)
         return name

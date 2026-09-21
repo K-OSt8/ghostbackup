@@ -3,7 +3,6 @@ import json
 from datetime import datetime, timezone
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from zipfile import ZipFile
 from zipfile import ZIP_DEFLATED
 from . import LOGGER_NAME
 from .ghostfileset import GhostFileSet
@@ -11,12 +10,13 @@ from .config import BackUpConfig
 from .ghostclient import GhostClient
 from .ghosttableexport import GhostTables
 from .ocios import OSFileArchive
+from .selective_zip import SelectiveZipFile
 
 
 class BackUp:
     def __init__(self, config:BackUpConfig):
         self.__ghost = GhostClient(accesstoken=config.getGhost()['AccessToken'], host = config.getGhost()['Host'])
-        self.__fileset = GhostFileSet(ghost_installdir=Path(config.getGhost()['Dir']))
+        self.__fileset = GhostFileSet(ghost_install_dir=Path(config.getGhost()['Dir']))
         self.__archive = OSFileArchive(bucket_name=config.getOCI()['BucketName'], 
                             name_space=config.getOCI()['NameSpace'],
                             name_prefix="ghost-backup",
@@ -46,7 +46,7 @@ class BackUp:
     def __backup(self) -> str:
 
         #create temp-dir
-        with TemporaryDirectory(prefix="ghost-backup") as temp_dir:
+        with TemporaryDirectory(prefix="ghost-backup", delete=True) as temp_dir:
             to_pack = []
             tmp_path = Path(temp_dir)
             now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H-%M-%SZ")
@@ -59,18 +59,17 @@ class BackUp:
             to_pack.append(export_path)
 
             #create file-system package
-            """
             content_path = self.__fileset.pack(tmp_path.joinpath(f"ghost-content-{now}.zip"))
             self.__log.debug("Saved files to %s", content_path)
             to_pack.append(content_path)
-            """
+
             #crete sql-dump
-            dump_path = self._sql.export_tables(tmp_path.joinpath(f"ghost-sql-{now}.zip"))
+            dump_path = self._sql.export_tables(tmp_path.joinpath(f"ghost-sql-{now}"))
             self.__log.debug("Exported db tables to %s", dump_path)
             to_pack.append(dump_path)
 
             #zip
-            with ZipFile(tmp_path.joinpath(f"backup-{now}.zip"), 'w', ZIP_DEFLATED) as backup_package:
+            with SelectiveZipFile(tmp_path.joinpath(f"backup-{now}.zip"), 'w', ZIP_DEFLATED) as backup_package:
                 for path in to_pack:
                     backup_package.write(path, arcname=path.name)
         
