@@ -65,7 +65,7 @@ class GhostTables:
         try:
             response = client.get_secret_bundle(secret_id=secret_ocid)
         except Exception as exc:  # oci wirft eigene ServiceError-Klassen
-            raise RuntimeError(f"No access to secrit '{secret_ocid}': {exc}") from exc
+            raise RuntimeError(f"No access to secret '{secret_ocid}': {exc}") from exc
 
         content = response.data.secret_bundle_content.content
         return base64.b64decode(content).decode("utf-8")
