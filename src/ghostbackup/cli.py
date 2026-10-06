@@ -11,6 +11,7 @@ import argparse
 import datetime
 import logging
 import sys
+from importlib.metadata import version
 
 from pathlib import Path
 from . import LOGGER_NAME
@@ -19,10 +20,11 @@ from .backup import BackUp
 
 def main():
 
-    parser = argparse.ArgumentParser(description="Ghost Back-up")
+    parser = argparse.ArgumentParser(description="Ghost Back-up", prog="Ghost-Backup")
     parser.add_argument("-f", "--force", action="store_true", help="Backup in any case: Skip check if archive is up-to-date")
     parser.add_argument("-c", "--config", type=Path, help="Path to configuration default to '~/.ghost-backup.cfg'")
     parser.add_argument("-v", "--verbose", action="store_true", help="activate verbose output")
+    parser.add_argument("-V", "--version", action="version", version=f"%(prog)s {version('ghostbackup')}")
     args = parser.parse_args()
 
     logging.basicConfig(format='%(asctime)s - %(levelname)s - %(name)s - %(message)s',
