@@ -1,6 +1,14 @@
+# -*- coding: utf-8 -*-
+# ocios.py
+"""
+Copyright (c) 2026 K-OS Christian Keller
+All rights reserved.
+
+This source code is licensed under the MIT license found in the
+LICENSE file in the root directory of this source tree.
+"""
 import datetime
 import logging
-from pathlib import Path
 from oci.object_storage import ObjectStorageClient, UploadManager
 from oci.config import from_file
 

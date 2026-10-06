@@ -1,5 +1,13 @@
-from __future__ import annotations
+# -*- coding: utf-8 -*-
+# ghosttableexport.py
+"""
+Copyright (c) 2026 K-OS Christian Keller
+All rights reserved.
 
+This source code is licensed under the MIT license found in the
+LICENSE file in the root directory of this source tree.
+"""
+from __future__ import annotations
 from pathlib import Path
 from zipfile import ZipFile, ZIP_DEFLATED
 from . import LOGGER_NAME
