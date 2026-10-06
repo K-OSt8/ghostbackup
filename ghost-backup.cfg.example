@@ -6,3 +6,10 @@ Dir = ~/ghost
 [OCI]
 BucketName = ghost-backup
 NameSpace = ffwwwsss
+
+[DB]
+Host = mysql-1
+Port = 3306
+DBName = ghost_prod
+DBUserName = readonly-user
+SecretOcid = ocid1.vaultsecret
