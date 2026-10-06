@@ -1,15 +1,43 @@
+# Ghost-Backup configuration
+#
+# Default location: ~/.ghost-backup.cfg
+# Use a different file with: Ghost-Backup --config /path/to/file.cfg
+#
+# Lines starting with '#' or ';' are comments. Comments must be on their own
+# line; inline comments after a value are NOT supported and would become part
+# of the value.
+
 [Ghost]
+# Base URL of the Ghost instance.
 Host = https://localhost:2368
+
+# Ghost Admin API access token used to authenticate against the Ghost instance.
+# Required. Keep this file private (e.g. chmod 600).
 AccessToken =
-Dir = ~/ghost
+
+# Path to the Ghost installation directory.
+Dir = /var/www/ghost
 
 [OCI]
+# Name of the OCI Object Storage bucket the backup archives are uploaded to.
 BucketName = ghost-backup
+
+# OCI Object Storage namespace of your tenancy.
 NameSpace = ffwwwsss
 
 [DB]
+# Hostname (or IP address) of the MySQL server.
 Host = mysql-1
+
+# TCP port of the MySQL server.
 Port = 3306
+
+# Name of the Ghost database to export from.
 DBName = ghost_prod
+
+# Database user. A read-only user is sufficient and recommended
 DBUserName = readonly-user
-SecretOcid = ocid1.vaultsecret
+
+# OCID of the OCI Vault secret that contains the password of DBUserName.
+# The password itself is never stored in this file.
+SecretOcid = ocid1.vaultsecret...
