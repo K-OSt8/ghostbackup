@@ -18,7 +18,8 @@ from . import LOGGER_NAME
 class OSFileArchive:
 
     def __init__(self, profile_name, bucket_name, name_space, name_prefix="package", name_postfix=""):
-        self.__client = ObjectStorageClient(from_file(profile_name=profile_name)) #~/.oci/config
+        oci_cfg = from_file() if (profile_name is None) else from_file(profile_name=profile_name)
+        self.__client = ObjectStorageClient(oci_cfg) #~/.oci/config
         self.__b_name = bucket_name
         self.__name_space = name_space
         self.__name_format = name_prefix + "-{date}" + name_postfix
