@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ghostbackup"
-version = "1.0.0-beta"
+version = "1.0.1-beta"
 description = "Geather Ghost relevant data and store it as single Package into OS"
 readme = "README.md"
 requires-python = ">=3.12"
@@ -18,7 +18,7 @@ dependencies = [
     "pymysql>=1.2.0",
 ]
 
-    [project.urls]
+[project.urls]
 Homepage = "https://chris.ke"
 Repository = "https://github.com/K-OSt8/ghostbackup"
 

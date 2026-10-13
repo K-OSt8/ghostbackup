@@ -26,7 +26,9 @@ class BackUp:
     def __init__(self, config:BackUpConfig):
         self.__ghost = GhostClient(accesstoken=config.getGhost()['AccessToken'], host = config.getGhost()['Host'])
         self.__fileset = GhostFileSet(ghost_install_dir=Path(config.getGhost()['Dir']))
-        self.__archive = OSFileArchive(bucket_name=config.getOCI()['BucketName'], 
+        self.__archive = OSFileArchive(
+                            profile_name=config.getOCI()['Profile'],
+                            bucket_name=config.getOCI()['BucketName'],
                             name_space=config.getOCI()['NameSpace'],
                             name_prefix="ghost-backup",
                             name_postfix=".zip")

@@ -63,6 +63,7 @@ Target for the backup archives in Oracle Cloud Infrastructure (OCI) Object Stora
 
 | Option | Required | Example | Description |
 |--------|----------|---------|-------------|
+| `Profile` | no | `Productive` | Name of the OCI Profile to use for connection defaults to DEFAULT |
 | `BucketName` | yes | `ghost-backup` | Name of the Object Storage bucket the archives are uploaded to. |
 | `NameSpace` | yes | `mynamespace` | Object Storage namespace of your tenancy. |
 

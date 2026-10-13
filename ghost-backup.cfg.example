@@ -19,6 +19,9 @@ AccessToken =
 Dir = /var/www/ghost
 
 [OCI]
+# Config Profile to be used. Defaults to default
+#Profile = MY_PROFILE
+
 # Name of the OCI Object Storage bucket the backup archives are uploaded to.
 BucketName = ghost-backup
 
